@@ -1,0 +1,18 @@
+version: '3.5'
+
+services:
+
+  git_congressy-cgsy:
+    restart: unless-stopped
+    container_name: git_congressy-cgsy
+    image: hugoseabra19/git-bare-pull
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./ssh:/root/.ssh
+      - ./repos:/sync-dir
+    environment:
+      - GIT_REPO_DOMAIN=bitbucket.org
+      - GIT_REPO_URL=git@bitbucket.org:congressy/cgsy-infra
+      - GIT_REPO_MAINTAINER=congressy
+      - GIT_REPO_DIR_NAME=cgsy
+      - CRON_TIME=*/1 * * * *

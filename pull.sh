@@ -2,28 +2,50 @@
 
 source /etc/sync_env
 
-SYNC_DIR="/sync-dir/${GIT_REPO_MAINTAINER}/${GIT_REPO_DIR_NAME}"
-
 function die {
     echo >&2 "$@"
+    echo ;
     exit 1
 }
 
-echo "Starting sync at $(date -R)"
+echo "Starting pull at $(date -R)"
 
 KNOWN_HOSTS_FILE_PATH="/root/.ssh/known_hosts"
 if [ ! -n "$(grep "^${GIT_REPO_DOMAIN} " ${KNOWN_HOSTS_FILE_PATH})" ]; then
   echo "registering known host for ${GIT_REPO_DOMAIN} ..."
-   ssh-keyscan ${GIT_REPO_DOMAIN} >> ${KNOWN_HOSTS_FILE_PATH} 2>/dev/null;
+  echo "> ssh-keyscan ${GIT_REPO_DOMAIN} >> ${KNOWN_HOSTS_FILE_PATH}"
+  ssh-keyscan ${GIT_REPO_DOMAIN} >> ${KNOWN_HOSTS_FILE_PATH} 2>/dev/null;
 fi
 
-if [ ! -d "$SYNC_DIR" ]; then
-  echo "${SYNC_DIR} does not exist or is not a directory. Performing initial clone."
-  git clone --bare "${GIT_REPO_URL}" "${SYNC_DIR}" || die "git clone failed"
+MAINTAINER_DIR="/sync-dir/${GIT_REPO_MAINTAINER}"
+
+if [ ! -d "${MAINTAINER_DIR}" ]; then
+  echo "> mkdir -p ${MAINTAINER_DIR}"
+  mkdir -p ${MAINTAINER_DIR}
 fi
 
-cd ${SYNC_DIR}
+echo "> cd ${MAINTAINER_DIR}"
+cd ${MAINTAINER_DIR}
 
-git pull origin "${GIT_REPO_BRANCH}" || die "git pull failed"
+if [ -d "${GIT_REPO_DIR_NAME}" ]; then
+  mkdir -p ${MAINTAINER_DIR}
+  echo "> cd ${GIT_REPO_DIR_NAME}"
+  cd ${GIT_REPO_DIR_NAME}
 
+  # Guarantee that the directory is a bare repository
+  branches  config  description  HEAD  hooks  info  objects  packed-refs  refs
+  if [ -d "branches" -a -d "hooks" -a -d "info" -a -d "objects" -a -d "refs" -a -e "config" -a -e "description" -a -e "HEAD" ]; then
+    echo "> git fetch --all"
+    git fetch --all || die "git pull failed"
+    echo ;
+    exit 0
+
+  else
+    rm -rf ${GIT_REPO_DIR_NAME}
+  fi
+fi
+
+echo "${MAINTAINER_DIR}/${GIT_REPO_DIR_NAME} does not exist or is not a directory. Performing initial clone."
+echo "> git clone --bare ${GIT_REPO_URL} ${GIT_REPO_DIR_NAME}"
+git clone --bare "${GIT_REPO_URL}" "${GIT_REPO_DIR_NAME}" || die "git clone failed"
 echo ;
