@@ -33,7 +33,6 @@ if [ -d "${GIT_REPO_DIR_NAME}" ]; then
   cd ${GIT_REPO_DIR_NAME}
 
   # Guarantee that the directory is a bare repository
-  branches  config  description  HEAD  hooks  info  objects  packed-refs  refs
   if [ -d "branches" -a -d "hooks" -a -d "info" -a -d "objects" -a -d "refs" -a -e "config" -a -e "description" -a -e "HEAD" ]; then
     echo "> git fetch --prune"
     git fetch --prune || die "git pull failed"
