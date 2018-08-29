@@ -1,6 +1,6 @@
 # git-bare-pull
-A docker image allowing you to pull a bare repository to a directory. You schedulle the pull action
-to keep you bare repository updated, so you can use it in to share it or in Redmine (my case).
+A docker image allowing you to pull (and keep updated) a bare repository to a directory.
+You schedulle the pull action to keep you bare repository updated, so you can use it in to share it or in Redmine (my case).
 
 To use it, you must pass the following **environment variables**:
 

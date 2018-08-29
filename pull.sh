@@ -35,8 +35,8 @@ if [ -d "${GIT_REPO_DIR_NAME}" ]; then
   # Guarantee that the directory is a bare repository
   branches  config  description  HEAD  hooks  info  objects  packed-refs  refs
   if [ -d "branches" -a -d "hooks" -a -d "info" -a -d "objects" -a -d "refs" -a -e "config" -a -e "description" -a -e "HEAD" ]; then
-    echo "> git fetch --all"
-    git fetch --all || die "git pull failed"
+    echo "> git fetch --prune"
+    git fetch --prune || die "git pull failed"
     echo ;
     exit 0
 
@@ -48,4 +48,6 @@ fi
 echo "${MAINTAINER_DIR}/${GIT_REPO_DIR_NAME} does not exist or is not a directory. Performing initial clone."
 echo "> git clone --bare ${GIT_REPO_URL} ${GIT_REPO_DIR_NAME}"
 git clone --bare "${GIT_REPO_URL}" "${GIT_REPO_DIR_NAME}" || die "git clone failed"
+cd ${GIT_REPO_DIR_NAME}
+git config remote.origin.fetch "+*:*"
 echo ;
